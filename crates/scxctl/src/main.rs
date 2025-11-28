@@ -126,6 +126,31 @@ fn cmd_restart(scx_loader: &LoaderClientProxyBlocking) -> Result<(), Box<dyn std
     Ok(())
 }
 
+fn cmd_restore(scx_loader: &LoaderClientProxyBlocking) -> Result<(), Box<dyn std::error::Error>> {
+    // Check if a default scheduler is configured
+    let default_scheduler = scx_loader.default_scheduler()?;
+    if default_scheduler == "unknown" {
+        println!(
+            "{} no default scheduler configured",
+            "error:".red().bold()
+        );
+        println!(
+            "\nSet '{}' in your config file to use this command",
+            "default_sched".bold()
+        );
+        exit(1);
+    }
+
+    scx_loader.restore_default()?;
+
+    // Fetch the default mode for display
+    let default_mode: SchedMode = scx_loader.default_mode()?;
+    let sched = SupportedSched::try_from(default_scheduler.as_str())?;
+    println!("restored default scheduler {sched:?} in {default_mode:?} mode");
+
+    Ok(())
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
     let conn = Connection::system()?;
@@ -138,6 +163,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Commands::Switch { args } => cmd_switch(&scx_loader, args.sched, args.mode, args.args)?,
         Commands::Stop => cmd_stop(&scx_loader)?,
         Commands::Restart => cmd_restart(&scx_loader)?,
+        Commands::Restore => cmd_restore(&scx_loader)?,
     }
 
     Ok(())

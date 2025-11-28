@@ -77,4 +77,6 @@ pub enum Commands {
     Stop,
     #[command(about = "Restart the current scheduler with original configuration")]
     Restart,
+    #[command(about = "Restore the default scheduler from configuration")]
+    Restore,
 }
