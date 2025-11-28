@@ -47,6 +47,12 @@ pub trait LoaderClient {
     /// it with the same scheduler and arguments/mode that were used originally.
     fn restart_scheduler(&self) -> zbus::Result<()>;
 
+    /// Restores the default scheduler with the default mode as configured
+    /// in the config file. This method will stop the currently running
+    /// scheduler (if any) and then start the default scheduler.
+    /// Returns an error if no default scheduler is configured.
+    fn restore_default(&self) -> zbus::Result<()>;
+
     /// The name of the currently running scheduler. If no scheduler is active,
     /// this property will be set to "unknown".
     #[zbus(property)]
@@ -70,4 +76,15 @@ pub trait LoaderClient {
     /// this array.
     #[zbus(property)]
     fn supported_schedulers(&self) -> zbus::Result<Vec<String>>;
+
+    /// The name of the default scheduler configured in the config file.
+    /// If no default scheduler is configured, this property will be set
+    /// to "unknown".
+    #[zbus(property)]
+    fn default_scheduler(&self) -> zbus::Result<String>;
+
+    /// The default scheduler mode configured in the config file.
+    /// Defaults to 0 (Auto) if not explicitly configured.
+    #[zbus(property)]
+    fn default_mode(&self) -> zbus::Result<SchedMode>;
 }
