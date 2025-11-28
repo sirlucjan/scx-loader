@@ -48,6 +48,24 @@
     <property name="SupportedSchedulers" type="as" access="read"/>
 
     <!--
+        DefaultScheduler:
+
+        The name of the default scheduler configured in the config file.
+        If no default scheduler is configured, this property will be set
+        to "unknown".
+    -->
+    <property name="DefaultScheduler" type="s" access="read"/>
+
+    <!--
+        DefaultMode:
+        @sched_mode: 0 = Auto, 1 = Gaming, 2 = PowerSave, 3 = LowLatency, 4 = Server
+
+        The default scheduler mode configured in the config file.
+        Defaults to 0 (Auto) if not explicitly configured.
+    -->
+    <property name="DefaultMode" type="u" access="read"/>
+
+    <!--
         StartScheduler:
 
         Starts the specified scheduler with the given mode.
@@ -124,6 +142,17 @@
         Returns an error if no scheduler is currently running.
     -->
     <method name="RestartScheduler">
+    </method>
+
+    <!--
+        RestoreDefault:
+
+        Switches to the default scheduler with the default mode as configured
+        in the config file. This method will stop the currently running
+        scheduler (if any) and then start the default scheduler.
+        Returns an error if no default scheduler is configured.
+    -->
+    <method name="RestoreDefault">
     </method>
   </interface>
 </node>

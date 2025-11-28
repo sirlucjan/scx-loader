@@ -67,6 +67,9 @@ struct ScxLoader {
     current_mode: SchedMode,
     current_args: Option<Vec<String>>,
     channel: UnboundedSender<ScxMessage>,
+    // Store default configuration from config file
+    default_sched: Option<SupportedSched>,
+    default_mode: SchedMode,
 }
 
 #[derive(Parser, Debug)]
@@ -118,6 +121,23 @@ impl ScxLoader {
             "scx_rustland",
             "scx_rusty",
         ]
+    }
+
+    /// Get the default scheduler configured in config file, returns "unknown" if not set
+    #[zbus(property)]
+    fn default_scheduler(&self) -> String {
+        if let Some(default_scx) = &self.default_sched {
+            let default_scx: &str = default_scx.clone().into();
+            default_scx.into()
+        } else {
+            "unknown".into()
+        }
+    }
+
+    /// Get the default scheduler mode configured in config file
+    #[zbus(property)]
+    fn default_mode(&self) -> SchedMode {
+        self.default_mode
     }
 
     async fn start_scheduler(
@@ -245,6 +265,36 @@ impl ScxLoader {
             ))
         }
     }
+
+    /// Restore the default scheduler configured in config file
+    async fn restore_default(
+        &mut self,
+        #[zbus(connection)] conn: &Connection,
+        #[zbus(header)] hdr: Header<'_>,
+    ) -> zbus::fdo::Result<()> {
+        check_authorization_inter(conn, &hdr, ROOT_ACTION_ID).await?;
+
+        if let Some(default_scx) = &self.default_sched {
+            let scx_name: &str = default_scx.clone().into();
+            log::info!(
+                "restoring default scheduler {scx_name:?} with mode {:?}..",
+                self.default_mode
+            );
+
+            let _ = self
+                .channel
+                .send(ScxMessage::SwitchSched((default_scx.clone(), self.default_mode)));
+            self.current_scx = Some(default_scx.clone());
+            self.current_mode = self.default_mode;
+            self.current_args = None;
+
+            Ok(())
+        } else {
+            Err(zbus::fdo::Error::Failed(
+                "No default scheduler is configured".to_string(),
+            ))
+        }
+    }
 }
 
 // Monitors CPU utilization and enables scx_lavd when utilization of any CPUs is > 90%
@@ -355,6 +405,8 @@ async fn main() -> Result<()> {
                 current_mode: SchedMode::Auto,
                 current_args: None,
                 channel: channel.clone(),
+                default_sched: config.default_sched.clone(),
+                default_mode: config.default_mode.unwrap_or(SchedMode::Auto),
             },
         )
         .await?;
