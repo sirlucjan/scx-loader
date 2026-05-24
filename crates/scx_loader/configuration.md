@@ -36,11 +36,11 @@ powersave_mode = []
 server_mode = []
 
 [scheds.scx_lavd]
-auto_mode = ["--autopilot"]
-gaming_mode = ["--performance"]
-lowlatency_mode = ["--performance"]
-powersave_mode = ["--powersave"]
-server_mode = ["--autopilot"]
+auto_mode = ["--autopilot", "--pinned-slice-us", "500"]
+gaming_mode = ["--performance", "--pinned-slice-us", "500"]
+lowlatency_mode = ["--performance", "--pinned-slice-us", "500"]
+powersave_mode = ["--powersave", "--pinned-slice-us", "500"]
+server_mode = ["--performance", "--slice-min-us", "3000", "--slice-max-us", "10000", "--pinned-slice-us", "3000"]
 
 [scheds.scx_flash]
 auto_mode = []
@@ -139,9 +139,11 @@ The example configuration above shows how to set custom flags for different sche
 * For `scx_rusty`:
     * No custom flags are defined, so the default flags for each mode will be used.
 * For `scx_lavd`:
-    * Gaming mode: `--performance`
-    * Low Latency mode: `--performance`
-    * Power Save mode: `--powersave`
+    * Auto mode: `--autopilot --pinned-slice-us 500`
+    * Gaming mode: `--performance --pinned-slice-us 500`
+    * Low Latency mode: `--performance --pinned-slice-us 500`
+    * Power Save mode: `--powersave --pinned-slice-us 500`
+    * Server mode: `--performance --slice-min-us 3000 --slice-max-us 10000 --pinned-slice-us 3000`
 * For `scx_flash`:
     * No custom flags are defined, so the default flags for each mode will be used.
 * For `scx_tickless`:

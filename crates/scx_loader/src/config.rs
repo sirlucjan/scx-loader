@@ -211,9 +211,20 @@ fn get_default_scx_flags_for_mode(
             SchedMode::Auto => vec!["-m", "auto"],
         },
         SupportedSched::Lavd => match sched_mode {
-            SchedMode::Gaming | SchedMode::LowLatency => vec!["--performance"],
-            SchedMode::PowerSave => vec!["--powersave"],
-            SchedMode::Server | SchedMode::Auto => vec!["--autopilot"],
+            SchedMode::Gaming | SchedMode::LowLatency => {
+                vec!["--performance", "--pinned-slice-us", "500"]
+            }
+            SchedMode::PowerSave => vec!["--powersave", "--pinned-slice-us", "500"],
+            SchedMode::Server => vec![
+                "--performance",
+                "--slice-min-us",
+                "3000",
+                "--slice-max-us",
+                "10000",
+                "--pinned-slice-us",
+                "3000",
+            ],
+            SchedMode::Auto => vec!["--autopilot", "--pinned-slice-us", "500"],
         },
         SupportedSched::P2DQ => match sched_mode {
             SchedMode::Gaming => vec!["--task-slice", "true", "-f", "--sched-mode", "performance"],
@@ -285,11 +296,11 @@ powersave_mode = []
 server_mode = []
 
 [scheds.scx_lavd]
-auto_mode = ["--autopilot"]
-gaming_mode = ["--performance"]
-lowlatency_mode = ["--performance"]
-powersave_mode = ["--powersave"]
-server_mode = ["--autopilot"]
+auto_mode = ["--autopilot", "--pinned-slice-us", "500"]
+gaming_mode = ["--performance", "--pinned-slice-us", "500"]
+lowlatency_mode = ["--performance", "--pinned-slice-us", "500"]
+powersave_mode = ["--powersave", "--pinned-slice-us", "500"]
+server_mode = ["--performance", "--slice-min-us", "3000", "--slice-max-us", "10000", "--pinned-slice-us", "3000"]
 
 [scheds.scx_flash]
 auto_mode = []
