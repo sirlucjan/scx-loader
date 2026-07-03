@@ -111,6 +111,7 @@ pub fn get_default_config() -> Config {
         SupportedSched::Flow,
         SupportedSched::Forge,
         SupportedSched::Chaos,
+        SupportedSched::Mitosis,
     ];
     let scheds_map = HashMap::from(supported_scheds.map(init_default_config_entry));
     Config {
@@ -261,7 +262,8 @@ fn get_default_scx_flags_for_mode(
         | SupportedSched::Pandemonium
         | SupportedSched::Flash
         | SupportedSched::Flow
-        | SupportedSched::Forge => vec![],
+        | SupportedSched::Forge
+        | SupportedSched::Mitosis => vec![],
     }
 }
 
